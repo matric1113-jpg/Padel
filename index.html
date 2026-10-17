@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Padel Club 2v2 Online - Precision Edition</title>
+  <title>Padel Club 2v2 Online - Pro Edition</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
@@ -20,7 +20,7 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 12px;
+      padding: 10px;
       user-select: none;
     }
     header {
@@ -29,35 +29,35 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       background: #1e293b;
-      padding: 10px 18px;
+      padding: 8px 16px;
       border-radius: 12px;
       border: 1px solid #334155;
       flex-wrap: wrap;
       gap: 10px;
     }
-    .brand { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
-    .scoreboard { display: flex; gap: 16px; align-items: center; font-weight: 700; font-size: 1.1rem; }
+    .brand { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+    .scoreboard { display: flex; gap: 14px; align-items: center; font-weight: 700; font-size: 1.05rem; }
     .team-badge {
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 8px;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
     .team-blue { background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; color: #38bdf8; }
     .team-red { background: rgba(248, 113, 113, 0.2); border: 2px solid #f87171; color: #f87171; }
-    .pts { font-size: 1.4rem; color: #fff; min-width: 38px; text-align: center; }
-    .games { font-size: 0.85rem; opacity: 0.9; }
+    .pts { font-size: 1.35rem; color: #fff; min-width: 36px; text-align: center; }
+    .games { font-size: 0.82rem; opacity: 0.9; }
 
     .panel {
       width: 100%;
       max-width: 960px;
       background: #1e293b;
-      padding: 10px 18px;
+      padding: 9px 14px;
       border-radius: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -65,35 +65,38 @@
       justify-content: space-between;
       border: 1px solid #334155;
     }
-    .inputs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    input {
+    .inputs { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+    input, select {
       background: #0f172a;
       border: 1px solid #475569;
       color: #fff;
-      padding: 8px 12px;
+      padding: 7px 10px;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       outline: none;
     }
+    select { cursor: pointer; border-color: var(--accent); color: var(--accent); font-weight: 600; }
     button {
       background: var(--accent);
       color: #0f172a;
       border: none;
-      padding: 8px 14px;
+      padding: 7px 12px;
       border-radius: 8px;
       font-weight: 700;
+      font-size: 0.86rem;
       cursor: pointer;
       transition: transform 0.1s, opacity 0.2s;
     }
     button:hover { opacity: 0.92; transform: translateY(-1px); }
     button.secondary { background: #38bdf8; color: #0f172a; }
+    button.audio-btn { background: #a855f7; color: #fff; }
     .room-badge {
       background: #0f172a;
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       border: 1px dashed var(--accent);
       font-family: monospace;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: var(--accent);
     }
 
@@ -108,10 +111,10 @@
     canvas { display: block; background: var(--court-outer); }
 
     .controls-footer {
-      margin-top: 10px;
+      margin-top: 8px;
       display: flex;
-      gap: 18px;
-      font-size: 0.88rem;
+      gap: 14px;
+      font-size: 0.83rem;
       color: #cbd5e1;
       flex-wrap: wrap;
       justify-content: center;
@@ -119,11 +122,11 @@
     .key {
       background: #334155;
       color: var(--accent);
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 5px;
       font-weight: 700;
-      font-size: 0.8rem;
-      margin-right: 4px;
+      font-size: 0.78rem;
+      margin-right: 3px;
       border: 1px solid #475569;
     }
   </style>
@@ -131,7 +134,7 @@
 <body>
 
   <header>
-    <div class="brand">🎾 PADEL 2v2 ONLINE</div>
+    <div class="brand">🎾 PADEL 2v2 PRO</div>
     <div class="scoreboard">
       <div class="team-badge team-blue">
         <span>AZUL</span>
@@ -150,13 +153,21 @@
 
   <div class="panel">
     <div class="inputs">
-      <input type="text" id="player-name" placeholder="Tu Nombre" maxlength="10" value="Jugador 1" style="width: 115px;">
-      <button onclick="createRoom()">Crear Sala (Host)</button>
-      <input type="text" id="room-code-input" placeholder="Código (ej: A7X9)" maxlength="6" style="width: 135px; text-transform: uppercase;">
-      <button class="secondary" onclick="joinRoom()">Unirse a Sala</button>
+      <input type="text" id="player-name" placeholder="Tu Nombre" maxlength="10" value="Jugador 1" style="width: 105px;">
+      <select id="stat-preset" title="Más velocidad reduce tu fuerza y viceversa">
+        <option value="0.85">⚡ Veloz (85% Vel / 15% Fza)</option>
+        <option value="0.68">🏃 Ágil (68% Vel / 32% Fza)</option>
+        <option value="0.50" selected>⚖️ Equilibrado (50% Vel / 50% Fza)</option>
+        <option value="0.32">💪 Potente (32% Vel / 68% Fza)</option>
+        <option value="0.15">💥 Pegador (15% Vel / 85% Fza)</option>
+      </select>
+      <button onclick="createRoom()">Crear Sala</button>
+      <input type="text" id="room-code-input" placeholder="Código" maxlength="6" style="width: 85px; text-transform: uppercase;">
+      <button class="secondary" onclick="joinRoom()">Unirse</button>
     </div>
     <div class="inputs">
-      <button class="secondary" onclick="resetMatch()">Reiniciar Marcador</button>
+      <button class="audio-btn" id="music-btn" onclick="toggleMusic()">🎵 Música: OFF</button>
+      <button class="secondary" onclick="resetMatch()">Reiniciar</button>
     </div>
   </div>
 
@@ -165,10 +176,11 @@
   </div>
 
   <div class="controls-footer">
-    <div><span class="key">W A S D</span> Mover jugador</div>
-    <div><span class="key">Cursor Mouse</span> Apuntar dirección</div>
-    <div><span class="key">Mantener Clic Izq (2s) + Soltar</span> Cargar Drive / Remate</div>
-    <div><span class="key">Mantener Clic Der + Soltar</span> Cargar Globo</div>
+    <div><span class="key">W A S D</span> Moverse</div>
+    <div><span class="key">ESPACIO</span> Sprint (Recarga: 20s)</div>
+    <div><span class="key">Cursor</span> Apuntar</div>
+    <div><span class="key">Clic Izq (2s) + Soltar</span> Sacar / Drive / Remate</div>
+    <div><span class="key">Clic Der + Soltar</span> Globo</div>
   </div>
 
 <script>
@@ -179,27 +191,162 @@ const COURT = {
   x: 60, y: 40,
   w: 800, h: 440,
   netX: 460,
+  midY: 260,
   serviceLeft: 210,
-  serviceRight: 710
+  serviceRight: 710,
+  glassLength: 150 // Los primeros 150px desde el fondo son cristal; el resto hasta la red es malla metálica
 };
 
 const POINTS_LABELS = ['0', '15', '30', '40', 'ORO'];
 const GRAVITY = 0.16;
-const MAX_CHARGE_FRAMES = 120; // Exactamente 2.0 segundos a 60 FPS
+const MAX_CHARGE_FRAMES = 120;      // 2 segundos de carga de pala
+const SPRINT_DURATION = 95;         // ~1.6 segundos de sprint activo
+const SPRINT_COOLDOWN = 1200;       // Exactamente 20 segundos a 60 FPS
 
-// Red P2P
+// ================= SINTETIZADOR DE SONIDO Y MÚSICA (Web Audio API) =================
+let audioCtx = null;
+let musicPlaying = false;
+let musicInterval = null;
+let beatStep = 0;
+
+function ensureAudio() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playSound(type) {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+
+  if (type === 'hit' || type === 'smash' || type === 'lob') {
+    // Golpe seco de pala de fibra de carbono + espuma EVA
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type === 'smash' ? 'sawtooth' : 'triangle';
+    const startFreq = type === 'smash' ? 220 : (type === 'lob' ? 150 : 185);
+    osc.frequency.setValueAtTime(startFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(42, now + 0.09);
+
+    gain.gain.setValueAtTime(type === 'smash' ? 0.45 : 0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } else if (type === 'bounce') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(110, now);
+    osc.frequency.exponentialRampToValueAtTime(48, now + 0.055);
+    gain.gain.setValueAtTime(0.16, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.065);
+  } else if (type === 'glass') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(420, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.09);
+  } else if (type === 'sprint') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(240, now);
+    osc.frequency.exponentialRampToValueAtTime(580, now + 0.18);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  } else if (type === 'fault') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(170, now);
+    osc.frequency.setValueAtTime(135, now + 0.12);
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.34);
+  }
+}
+
+function toggleMusic() {
+  ensureAudio();
+  musicPlaying = !musicPlaying;
+  const btn = document.getElementById('music-btn');
+  btn.innerText = musicPlaying ? '🎵 Música: ON' : '🎵 Música: OFF';
+  btn.style.background = musicPlaying ? '#22c55e' : '#a855f7';
+
+  if (musicPlaying) {
+    const bassNotes = [110, 110, 130.81, 146.83, 110, 110, 164.81, 146.83];
+    const chordNotes = [220, 261.63, 329.63, 293.66, 220, 261.63, 392.00, 329.63];
+    musicInterval = setInterval(() => {
+      if (!audioCtx || !musicPlaying) return;
+      const now = audioCtx.currentTime;
+      // Bajo rítmico estilo Arcade Sports
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(bassNotes[beatStep % bassNotes.length], now);
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.19);
+
+      // Sintetizador agudo en tiempos pares
+      if (beatStep % 2 === 0) {
+        const lead = audioCtx.createOscillator();
+        const lGain = audioCtx.createGain();
+        lead.type = 'sine';
+        lead.frequency.setValueAtTime(chordNotes[(beatStep / 2) % chordNotes.length], now);
+        lGain.gain.setValueAtTime(0.04, now);
+        lGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        lead.connect(lGain);
+        lGain.connect(audioCtx.destination);
+        lead.start(now);
+        lead.stop(now + 0.15);
+      }
+      beatStep++;
+    }, 220);
+  } else {
+    clearInterval(musicInterval);
+  }
+}
+
+// ================= RED P2P Y CONTROLES =================
 let peer = null;
 let isHost = true;
 let mySlot = 0;
 let connections = {};
 let hostConn = null;
 
-// Controles locales (Teclado + Mouse con carga)
 const localInput = {
   up: false, down: false, left: false, right: false,
+  sprint: false,
+  speedPref: 0.50,
   charging: false,
   lobMode: false,
-  aimX: 700,
+  aimX: 600,
   aimY: 260,
   releaseSeq: 0,
   lastChargeRatio: 0,
@@ -208,13 +355,20 @@ const localInput = {
 
 let localChargeFrames = 0;
 
+document.getElementById('stat-preset').addEventListener('change', e => {
+  localInput.speedPref = parseFloat(e.target.value);
+  e.target.blur();
+});
+
 window.addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'INPUT') return;
+  ensureAudio();
   const k = e.key.toLowerCase();
   if (k === 'w' || e.key === 'ArrowUp') { localInput.up = true; e.preventDefault(); }
   if (k === 's' || e.key === 'ArrowDown') { localInput.down = true; e.preventDefault(); }
   if (k === 'a' || e.key === 'ArrowLeft') { localInput.left = true; e.preventDefault(); }
   if (k === 'd' || e.key === 'ArrowRight') { localInput.right = true; e.preventDefault(); }
+  if (e.code === 'Space') { localInput.sprint = true; e.preventDefault(); }
 });
 
 window.addEventListener('keyup', e => {
@@ -223,9 +377,9 @@ window.addEventListener('keyup', e => {
   if (k === 's' || e.key === 'ArrowDown') localInput.down = false;
   if (k === 'a' || e.key === 'ArrowLeft') localInput.left = false;
   if (k === 'd' || e.key === 'ArrowRight') localInput.right = false;
+  if (e.code === 'Space') localInput.sprint = false;
 });
 
-// Desactivar menú contextual del clic derecho sobre el canvas para usar Clic Derecho como Globo
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 
 canvas.addEventListener('mousemove', e => {
@@ -237,6 +391,7 @@ canvas.addEventListener('mousemove', e => {
 });
 
 canvas.addEventListener('mousedown', e => {
+  ensureAudio();
   if (document.activeElement.tagName === 'INPUT') document.activeElement.blur();
   if (e.button === 0) {
     localInput.charging = true;
@@ -258,48 +413,63 @@ window.addEventListener('mouseup', e => {
   }
 });
 
-function createPlayer(x, y, team, name, isBot) {
+function createPlayer(x, y, team, name, isBot, speedPref = 0.5) {
   return {
     x, y, vx: 0, vy: 0, team, name, isBot,
+    speedStat: speedPref,          // 0.15 a 0.85
+    powerStat: 1 - speedPref,      // Inversamente proporcional a la velocidad
+    sprintActiveTimer: 0,
+    sprintCooldown: 0,             // 1200 frames = 20s
     charging: false,
     lobMode: false,
     chargeFrames: 0,
-    swingTimer: 0,      // Ventana activa del golpe al soltar el clic (10 frames)
-    swingCharge: 0,     // Potencia acumulada (0.0 a 1.0)
+    swingTimer: 0,
+    swingCharge: 0,
     swingLob: false,
-    cooldown: 0,        // Penalización si tiras un golpe al aire antes de tiempo
-    aimX: team === 0 ? 700 : 220,
+    cooldown: 0,
+    aimX: team === 0 ? 600 : 320,
     aimY: 260,
     lastReleaseSeq: 0
   };
 }
 
-// Estado autoritativo del partido
 const state = {
   phase: 'SERVE', // 'SERVE' | 'PLAY' | 'POINT_PAUSE'
   serverSlot: 0,
+  serveTargetBox: { minX: 460, maxX: 710, minY: 260, maxY: 480 },
   serveBotTimer: 75,
   pauseTimer: 0,
+  soundTrigger: { seq: 0, type: '' },
   players: [
-    createPlayer(150, 150, 0, 'Jugador 1', false),
-    createPlayer(150, 370, 0, 'Compañero IA', true),
-    createPlayer(770, 150, 1, 'Rival 1 IA', true),
-    createPlayer(770, 370, 1, 'Rival 2 IA', true)
+    createPlayer(145, 150, 0, 'Jugador 1', false, 0.50),
+    createPlayer(145, 370, 0, 'Compañero IA', true, 0.65),
+    createPlayer(775, 150, 1, 'Rival Veloz', true, 0.75),
+    createPlayer(775, 370, 1, 'Rival Pegador', true, 0.25)
   ],
   ball: {
     x: 175, y: 150, z: 18,
     vx: 0, vy: 0, vz: 0,
     lastHitTeam: 0,
-    bouncesOnSide: 0,
-    bouncedAfterNet: false,
+    bouncesInOpponentSide: 0,
+    hasBouncedInValidBox: false,
+    isServeShot: true,
     shotType: 'SAQUE',
     trail: []
   },
   score: [0, 0],
   games: [0, 0],
-  bannerText: 'MANTÉN CLIC IZQ Y SUELTA PARA SACAR',
+  bannerText: 'SACA CRUZADO AL CUADRO ILUMINADO',
   bannerTimer: 9999
 };
+
+let lastPlayedSoundSeq = 0;
+
+function emitSound(type) {
+  state.soundTrigger.seq++;
+  state.soundTrigger.type = type;
+  playSound(type);
+  lastPlayedSoundSeq = state.soundTrigger.seq;
+}
 
 const remoteInputs = [
   { ...localInput },
@@ -308,7 +478,7 @@ const remoteInputs = [
   { ...localInput }
 ];
 
-// ================= CONEXIÓN ONLINE (PeerJS) =================
+// ================= CONEXIÓN P2P =================
 function randomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let out = '';
@@ -317,8 +487,9 @@ function randomCode() {
 }
 
 function createRoom() {
+  ensureAudio();
   const code = randomCode();
-  const peerId = 'padel2v2-room-' + code;
+  const peerId = 'padel2v2-pro-' + code;
   if (peer) peer.destroy();
 
   isHost = true;
@@ -327,7 +498,7 @@ function createRoom() {
   document.getElementById('status-text').innerText = 'Creando sala...';
 
   peer.on('open', () => {
-    document.getElementById('status-text').innerText = 'SALA: ' + code + ' (Comparte este código)';
+    document.getElementById('status-text').innerText = 'SALA: ' + code;
     showBanner('SALA CREADA: ' + code, 150);
   });
 
@@ -358,14 +529,15 @@ function createRoom() {
       state.players[slot].isBot = true;
       state.players[slot].name = 'Bot ' + (slot + 1);
       delete connections[slot];
-      showBanner('JUGADOR ' + (slot + 1) + ' SE DESCONECTÓ', 120);
+      showBanner('JUGADOR ' + (slot + 1) + ' SALIÓ', 120);
     });
   });
 }
 
 function joinRoom() {
+  ensureAudio();
   const code = document.getElementById('room-code-input').value.trim().toUpperCase();
-  if (!code) return alert('Ingresa el código de 4 letras de la sala.');
+  if (!code) return alert('Ingresa el código de 4 letras.');
   if (peer) peer.destroy();
 
   isHost = false;
@@ -373,16 +545,20 @@ function joinRoom() {
   document.getElementById('status-text').innerText = 'Conectando a ' + code + '...';
 
   peer.on('open', () => {
-    hostConn = peer.connect('padel2v2-room-' + code);
+    hostConn = peer.connect('padel2v2-pro-' + code);
     hostConn.on('open', () => {
-      document.getElementById('status-text').innerText = 'Conectado a sala ' + code;
+      document.getElementById('status-text').innerText = 'Conectado a ' + code;
     });
     hostConn.on('data', data => {
       if (data.type === 'welcome') {
         mySlot = data.slot;
-        document.getElementById('status-text').innerText = 'Sala ' + code + ' | Eres Jugador ' + (mySlot + 1);
+        document.getElementById('status-text').innerText = 'Sala ' + code + ' | J' + (mySlot + 1);
       } else if (data.type === 'state') {
         Object.assign(state, data.state);
+        if (state.soundTrigger.seq !== lastPlayedSoundSeq) {
+          lastPlayedSoundSeq = state.soundTrigger.seq;
+          playSound(state.soundTrigger.type);
+        }
         updateScoreUI();
       }
     });
@@ -400,57 +576,60 @@ setInterval(() => {
   }
 }, 20);
 
-// ================= FÍSICA Y BALÍSTICA =================
+// ================= FÍSICA, SAQUE REGLAMENTARIO Y REBOTES =================
 function showBanner(text, duration = 90) {
   state.bannerText = text;
   state.bannerTimer = duration;
 }
 
-// Restringe el punto de mira (cursor) para que siempre apunte dentro de la cancha rival
-function getClampedTarget(team, rawAimX, rawAimY, chargeRatio, isLob) {
-  const margin = 24;
-  let minX, maxX;
-  if (team === 0) {
-    minX = COURT.netX + 45;
-    maxX = COURT.x + COURT.w - margin;
-  } else {
-    minX = COURT.x + margin;
-    maxX = COURT.netX - 45;
-  }
+// Calcula el cuadro cruzado obligatorio para el saque
+function computeServeBox(server) {
+  const serverInTopHalf = server.y < COURT.midY;
+  return {
+    minX: server.team === 0 ? COURT.netX : COURT.serviceLeft,
+    maxX: server.team === 0 ? COURT.serviceRight : COURT.netX,
+    minY: serverInTopHalf ? COURT.midY : COURT.y,
+    maxY: serverInTopHalf ? (COURT.y + COURT.h) : COURT.midY
+  };
+}
+
+function getClampedTarget(team, rawAimX, rawAimY, chargeRatio, powerStat, isLob, isServe) {
+  const margin = 18;
+  const minX = team === 0 ? COURT.netX + 35 : COURT.x + margin;
+  const maxX = team === 0 ? COURT.x + COURT.w - margin : COURT.netX - 35;
   const minY = COURT.y + margin;
   const maxY = COURT.y + COURT.h - margin;
 
   let tx = Math.max(minX, Math.min(maxX, rawAimX));
   let ty = Math.max(minY, Math.min(maxY, rawAimY));
 
-  // Si cargas más tiempo, el tiro gana profundidad hacia el fondo de la pista
-  if (!isLob) {
-    const depthPull = (chargeRatio - 0.5) * 70;
+  // En juego normal (no en saque), más carga y más fuerza empujan la bola más profunda
+  if (!isLob && !isServe) {
+    const depthPull = (chargeRatio - 0.4) * (50 + powerStat * 45);
     tx += (team === 0 ? depthPull : -depthPull);
     tx = Math.max(minX, Math.min(maxX, tx));
   }
   return { tx, ty };
 }
 
-function launchBall(targetX, targetY, speedX, shotLabel, team) {
+function launchBall(targetX, targetY, speedX, shotLabel, team, isServeShot) {
   const b = state.ball;
   const dirX = team === 0 ? 1 : -1;
   b.vx = dirX * speedX;
 
-  const distX = Math.max(95, Math.abs(targetX - b.x));
+  const distX = Math.max(85, Math.abs(targetX - b.x));
   const framesToLand = distX / speedX;
 
   b.vy = (targetY - b.y) / framesToLand;
   b.vz = (0.5 * GRAVITY * framesToLand * framesToLand - b.z) / framesToLand;
 
-  // Asegurar que el globo tenga una parábola bien alta sobre la red
   if (shotLabel === 'GLOBO' && b.vz < 5.6) {
     b.vz = 5.9;
   }
 
   b.lastHitTeam = team;
-  b.bouncesOnSide = 0;
-  b.bouncedAfterNet = false;
+  b.bouncesInOpponentSide = 0;
+  b.isServeShot = isServeShot;
   b.shotType = shotLabel;
 }
 
@@ -470,6 +649,8 @@ function setupServe(nextServerSlot) {
   });
 
   const server = state.players[state.serverSlot];
+  state.serveTargetBox = computeServeBox(server);
+
   const dir = server.team === 0 ? 1 : -1;
   const b = state.ball;
   b.x = server.x + dir * 20;
@@ -477,18 +658,21 @@ function setupServe(nextServerSlot) {
   b.z = 16;
   b.vx = 0; b.vy = 0; b.vz = 0;
   b.trail = [];
+  b.isServeShot = true;
+  b.bouncesInOpponentSide = 0;
   b.shotType = 'SAQUE';
 
   if (state.serverSlot === mySlot) {
-    showBanner('TU SAQUE: CARGA CON CLIC IZQ Y SUELTA', 9999);
+    showBanner('TU SAQUE: APUNTA AL CUADRO VERDE Y SUELTA CLIC IZQ', 9999);
   } else {
     showBanner('AL SAQUE: ' + server.name.toUpperCase(), 9999);
   }
 }
 
-function awardPoint(winningTeam, reason) {
+function awardPoint(winningTeam, reason, isFault = false) {
+  if (isFault) emitSound('fault');
   state.phase = 'POINT_PAUSE';
-  state.pauseTimer = 85;
+  state.pauseTimer = 95;
   state.score[winningTeam]++;
 
   const s0 = state.score[0];
@@ -497,11 +681,11 @@ function awardPoint(winningTeam, reason) {
   if (state.score[winningTeam] >= 4) {
     state.games[winningTeam]++;
     state.score = [0, 0];
-    showBanner(`¡GAME EQUIPO ${winningTeam === 0 ? 'AZUL' : 'ROJO'}! (${reason})`, 95);
+    showBanner(`¡GAME EQUIPO ${winningTeam === 0 ? 'AZUL' : 'ROJO'}! (${reason})`, 100);
   } else if (s0 === 3 && s1 === 3) {
-    showBanner(`¡PUNTO DE ORO 40-40! (${reason})`, 95);
+    showBanner(`¡PUNTO DE ORO 40-40! (${reason})`, 100);
   } else {
-    showBanner(`${reason}  •  ${POINTS_LABELS[s0]} - ${POINTS_LABELS[s1]}`, 85);
+    showBanner(`${reason}  •  ${POINTS_LABELS[s0]} - ${POINTS_LABELS[s1]}`, 95);
   }
   updateScoreUI();
   state.serverSlot = (state.serverSlot + 1) % 4;
@@ -522,27 +706,30 @@ function updateScoreUI() {
   document.getElementById('games-red').innerText = `(${state.games[1]}G)`;
 }
 
-// IA de los Bots adaptada al nuevo sistema de carga y precisión
 function updateBotLogic(p, idx) {
   const b = state.ball;
   const inp = {
     up: false, down: false, left: false, right: false,
+    sprint: false,
+    speedPref: p.speedStat,
     charging: p.charging, lobMode: p.lobMode,
     aimX: p.aimX, aimY: p.aimY,
     releaseSeq: p.lastReleaseSeq,
-    lastChargeRatio: 0.65, lastReleaseLob: false
+    lastChargeRatio: 0.55, lastReleaseLob: false
   };
 
   if (state.phase === 'SERVE') {
     if (state.serverSlot === idx) {
+      const box = state.serveTargetBox;
       if (state.serveBotTimer > 25) {
         inp.charging = true;
-        inp.aimX = p.team === 0 ? 640 : 280;
-        inp.aimY = p.y < 260 ? 360 : 160;
+        // El bot apunta dentro del cuadro reglamentario cruzado
+        inp.aimX = (box.minX + box.maxX) / 2;
+        inp.aimY = (box.minY + box.maxY) / 2;
       } else if (state.serveBotTimer <= 25 && p.charging) {
         inp.charging = false;
         inp.releaseSeq = p.lastReleaseSeq + 1;
-        inp.lastChargeRatio = 0.65;
+        inp.lastChargeRatio = 0.5;
       }
     }
     return inp;
@@ -566,21 +753,23 @@ function updateBotLogic(p, idx) {
   if (p.y > targetY + 8) inp.up = true;
 
   const dir = p.team === 0 ? 1 : -1;
-  const paddleX = p.x + dir * 16;
+  const paddleX = p.x + dir * 17;
   const paddleY = p.y + 6;
   const distToPaddle = Math.hypot(b.x - paddleX, b.y - paddleY);
 
-  // El bot empieza a cargar cuando la pelota viene hacia él
+  // Si la bola está muy lejos, el bot usa su Sprint si lo tiene disponible
+  if (ballOnMySide && inMyHalfY && distToPaddle > 135 && p.sprintCooldown === 0) {
+    inp.sprint = true;
+  }
+
   if (state.phase === 'PLAY' && b.lastHitTeam !== p.team && ballOnMySide && distToPaddle < 130) {
     if (!p.charging && p.cooldown === 0) {
       inp.charging = true;
       inp.lobMode = (Math.random() < 0.22 && Math.abs(p.x - COURT.netX) > 220);
-      // Apunta a un rincón libre
-      inp.aimX = p.team === 0 ? (620 + Math.random() * 170) : (130 + Math.random() * 170);
+      inp.aimX = p.team === 0 ? (580 + Math.random() * 190) : (150 + Math.random() * 190);
       inp.aimY = 85 + Math.random() * 350;
     }
-    // Suelta el golpe cuando la pelota entra al radio preciso de su pala
-    if (p.charging && distToPaddle < 34 && b.z <= 72) {
+    if (p.charging && distToPaddle < 34 && b.z <= 75) {
       inp.charging = false;
       inp.releaseSeq = p.lastReleaseSeq + 1;
       inp.lastChargeRatio = Math.min(1, p.chargeFrames / MAX_CHARGE_FRAMES);
@@ -594,7 +783,6 @@ function updateBotLogic(p, idx) {
 }
 
 function stepPhysics() {
-  // Actualizar barra de carga local para enviar al Host
   if (localInput.charging) {
     localChargeFrames = Math.min(MAX_CHARGE_FRAMES, localChargeFrames + 1);
   } else {
@@ -619,27 +807,40 @@ function stepPhysics() {
   state.players.forEach((p, idx) => {
     if (p.cooldown > 0) p.cooldown--;
     if (p.swingTimer > 0) p.swingTimer--;
+    if (p.sprintActiveTimer > 0) p.sprintActiveTimer--;
+    if (p.sprintCooldown > 0) p.sprintCooldown--;
 
     const inp = p.isBot ? updateBotLogic(p, idx) : remoteInputs[idx];
+
+    // Actualizar estadísticas inversas Velocidad vs Fuerza
+    if (typeof inp.speedPref === 'number') {
+      p.speedStat = Math.max(0.15, Math.min(0.85, inp.speedPref));
+      p.powerStat = 1 - p.speedStat;
+    }
+
+    // Activar Sprint con ESPACIO (20s de recarga)
+    if (inp.sprint && p.sprintCooldown === 0 && p.sprintActiveTimer === 0) {
+      p.sprintActiveTimer = SPRINT_DURATION;
+      p.sprintCooldown = SPRINT_COOLDOWN;
+      emitSound('sprint');
+    }
 
     p.aimX = inp.aimX;
     p.aimY = inp.aimY;
 
-    // Detectar carga de la pala (hasta 120 frames = 2 segundos)
     if (inp.charging && p.cooldown === 0) {
       p.charging = true;
       p.lobMode = inp.lobMode;
       p.chargeFrames = Math.min(MAX_CHARGE_FRAMES, p.chargeFrames + 1);
     }
 
-    // Detectar el momento en que el jugador SUELTA el clic para golpear
     if (inp.releaseSeq !== p.lastReleaseSeq) {
       p.lastReleaseSeq = inp.releaseSeq;
       if (p.cooldown === 0) {
-        p.swingTimer = 11; // 0.18 segundos de ventana de impacto precisa
+        p.swingTimer = 11;
         p.swingCharge = Math.max(0.15, inp.lastChargeRatio || (p.chargeFrames / MAX_CHARGE_FRAMES));
         p.swingLob = inp.lastReleaseLob;
-        p.cooldown = 28; // No puede spamear otro golpe enseguida
+        p.cooldown = 28;
       }
       p.charging = false;
       p.chargeFrames = 0;
@@ -648,18 +849,24 @@ function stepPhysics() {
       p.chargeFrames = 0;
     }
 
-    // Velocidad: más lento mientras cargas la pala, exigiendo buena colocación previa
-    const baseSpeed = 3.65;
-    const moveSpeed = p.charging ? 2.45 : baseSpeed;
+    // Velocidad según Stat + Penalización al cargar pala + Boost de Sprint
+    const statBaseSpeed = 2.75 + (p.speedStat * 1.85);
+    let moveSpeed = p.charging ? statBaseSpeed * 0.68 : statBaseSpeed;
+    if (p.sprintActiveTimer > 0) moveSpeed *= 1.58;
 
     p.vx = (inp.right ? moveSpeed : 0) - (inp.left ? moveSpeed : 0);
     p.vy = (inp.down ? moveSpeed : 0) - (inp.up ? moveSpeed : 0);
     p.x += p.vx;
     p.y += p.vy;
 
-    // Límites de su mitad de cancha (con separación de la red)
-    const minX = p.team === 0 ? COURT.x + 18 : COURT.netX + 28;
-    const maxX = p.team === 0 ? COURT.netX - 28 : COURT.x + COURT.w - 18;
+    // Límites de cancha (En el saque, el sacador no puede pisar delante de la línea de saque ni cruzar el centro)
+    let minX = p.team === 0 ? COURT.x + 18 : COURT.netX + 28;
+    let maxX = p.team === 0 ? COURT.netX - 28 : COURT.x + COURT.w - 18;
+    if (state.phase === 'SERVE' && idx === state.serverSlot) {
+      if (p.team === 0) maxX = COURT.serviceLeft - 10;
+      else minX = COURT.serviceRight + 10;
+    }
+
     p.x = Math.max(minX, Math.min(maxX, p.x));
     p.y = Math.max(COURT.y + 18, Math.min(COURT.y + COURT.h - 18, p.y));
 
@@ -669,6 +876,7 @@ function stepPhysics() {
 
     // FASE DE SAQUE
     if (state.phase === 'SERVE' && idx === state.serverSlot) {
+      state.serveTargetBox = computeServeBox(p);
       b.x = paddleX + dir * 6;
       b.y = paddleY;
       b.z = 16;
@@ -677,41 +885,42 @@ function stepPhysics() {
       if (p.swingTimer > 0) {
         state.phase = 'PLAY';
         p.swingTimer = 0;
-        const { tx, ty } = getClampedTarget(p.team, p.aimX, p.aimY, p.swingCharge, false);
-        const serveSpeed = 5.8 + p.swingCharge * 3.0;
-        launchBall(tx, ty, serveSpeed, 'SAQUE', p.team);
-        showBanner('¡PUNTO EN JUEGO!', 35);
+        const { tx, ty } = getClampedTarget(p.team, p.aimX, p.aimY, p.swingCharge, p.powerStat, false, true);
+        const serveSpeed = 5.4 + (p.swingCharge * 2.2) + (p.powerStat * 1.4);
+        launchBall(tx, ty, serveSpeed, 'SAQUE', p.team, true);
+        emitSound('hit');
+        showBanner('¡SAQUE EN JUEGO!', 35);
       }
       return;
     }
 
-    // FASE DE JUEGO: Verificación estricta de impacto con la pala
+    // FASE DE JUEGO: Impacto con la pala
     if (state.phase === 'PLAY' && p.swingTimer > 0) {
-      // 1. Prohibido golpear si tu equipo ya la tocó o si la bola AÚN NO CRUZA LA RED
       const ballStrictlyOnMySide = (p.team === 0 && b.x < COURT.netX - 6) || (p.team === 1 && b.x > COURT.netX + 6);
       if (b.lastHitTeam === p.team || !ballStrictlyOnMySide) return;
 
-      // 2. Precisión: distancia medida directamente a la PALA (radio reducido a 35px)
       const distToPaddle = Math.hypot(b.x - paddleX, b.y - paddleY);
-      if (distToPaddle <= 35 && b.z <= 78) {
-        p.swingTimer = 0; // Consumir el golpe
-        const { tx, ty } = getClampedTarget(p.team, p.aimX, p.aimY, p.swingCharge, p.swingLob);
+      if (distToPaddle <= 35 && b.z <= 80) {
+        p.swingTimer = 0;
+        const { tx, ty } = getClampedTarget(p.team, p.aimX, p.aimY, p.swingCharge, p.powerStat, p.swingLob, false);
+        const powerMultiplier = 0.78 + (p.powerStat * 0.52); // Los personajes de fuerza le pegan mucho más duro
         const chargePct = Math.round(p.swingCharge * 100);
 
         if (p.swingLob) {
-          // GLOBO APUNTADO CON CURSOR
-          const lobSpeed = 3.9 + p.swingCharge * 1.4;
-          launchBall(tx, ty, lobSpeed, 'GLOBO', p.team);
+          const lobSpeed = 3.9 + p.swingCharge * 1.3;
+          launchBall(tx, ty, lobSpeed, 'GLOBO', p.team, false);
+          emitSound('lob');
           showBanner(`☁️ GLOBO (${chargePct}%)`, 35);
-        } else if (b.z > 30 && p.swingCharge >= 0.55 && Math.abs(p.x - COURT.netX) < 210) {
-          // REMATE / SMASH CARGADO
-          const smashSpeed = 8.5 + p.swingCharge * 3.6;
-          launchBall(tx, ty, smashSpeed, '¡REMATE!', p.team);
-          showBanner(`💥 ¡REMATE AL ${chargePct}%!`, 45);
+        } else if (b.z > 28 && p.swingCharge >= 0.50 && Math.abs(p.x - COURT.netX) < 220) {
+          // REMATE POTENTE (Si tiene alta Fuerza y Carga, rebota en cristal y vuelve a su campo!)
+          const smashSpeed = (7.8 + p.swingCharge * 3.8) * powerMultiplier;
+          launchBall(tx, ty, smashSpeed, '¡REMATE!', p.team, false);
+          emitSound('smash');
+          showBanner(`💥 ¡REMATE (${chargePct}%)!`, 45);
         } else {
-          // DRIVE / BANDEJA DIRECCIONADA AL CURSOR
-          const driveSpeed = 5.4 + p.swingCharge * 4.4;
-          launchBall(tx, ty, driveSpeed, 'DRIVE', p.team);
+          const driveSpeed = (5.2 + p.swingCharge * 4.0) * powerMultiplier;
+          launchBall(tx, ty, driveSpeed, 'DRIVE', p.team, false);
+          emitSound('hit');
         }
       }
     }
@@ -719,11 +928,9 @@ function stepPhysics() {
 
   if (state.phase !== 'PLAY') return;
 
-  // Estela de la pelota
   b.trail.push({ x: b.x, y: b.y, z: b.z });
   if (b.trail.length > 10) b.trail.shift();
 
-  // Avance de la pelota
   const prevX = b.x;
   b.x += b.vx;
   b.y += b.vy;
@@ -734,52 +941,99 @@ function stepPhysics() {
   const crossedNet = (prevX <= COURT.netX && b.x > COURT.netX) || (prevX >= COURT.netX && b.x < COURT.netX);
   if (crossedNet) {
     if (b.z < 11) {
-      awardPoint(b.lastHitTeam === 0 ? 1 : 0, '¡PELOTA EN LA RED!');
+      // Si la pelota ya había botado en el campo rival y al volver de rebote choca en la red, el punto es para quien remató
+      if (b.bouncesInOpponentSide >= 1) {
+        awardPoint(b.lastHitTeam, '¡GRAN REMATE (VOLVIÓ A LA RED)!');
+      } else {
+        awardPoint(b.lastHitTeam === 0 ? 1 : 0, b.isServeShot ? '¡FALTA DE SAQUE (RED)!' : '¡PELOTA EN LA RED!', true);
+      }
       return;
     }
-    b.bouncesOnSide = 0;
-    b.bouncedAfterNet = true;
   }
 
-  // Bote en el césped
+  // Bote en el suelo
   if (b.z <= 0) {
     b.z = 0;
-    b.vz = Math.abs(b.vz) * 0.74;
-    b.vx *= 0.89;
-    b.vy *= 0.89;
+    // Si es un remate, rebota más vivo hacia arriba al picar
+    const bounceRestitution = b.shotType === '¡REMATE!' ? 0.84 : 0.74;
+    b.vz = Math.abs(b.vz) * bounceRestitution;
+    b.vx *= 0.90;
+    b.vy *= 0.90;
+    emitSound('bounce');
 
     const currentSide = b.x < COURT.netX ? 0 : 1;
+
+    // CASO 1: La pelota bota en el lado del mismo equipo que golpeó
     if (currentSide === b.lastHitTeam) {
-      awardPoint(currentSide === 0 ? 1 : 0, 'BOTE EN PROPIO CAMPO');
+      if (b.bouncesInOpponentSide >= 1) {
+        // ¡Regla corregida! Botó en campo rival, dio en su cristal y volvió a tu campo sin que la tocaran -> ¡PUNTO BUENO!
+        awardPoint(b.lastHitTeam, '🔥 ¡REMATE GANADOR (VOLVIÓ A TU CAMPO)!');
+      } else {
+        awardPoint(currentSide === 0 ? 1 : 0, '¡FALTA: BOTE EN PROPIO CAMPO!', true);
+      }
       return;
     }
 
-    b.bouncesOnSide++;
-    b.bouncedAfterNet = true;
+    // CASO 2: La pelota bota en el campo rival
+    if (b.isServeShot && b.bouncesInOpponentSide === 0) {
+      const box = state.serveTargetBox;
+      const inBoxX = b.x >= box.minX - 4 && b.x <= box.maxX + 4;
+      const inBoxY = b.y >= box.minY - 4 && b.y <= box.maxY + 4;
+      if (!inBoxX || !inBoxY) {
+        // ¡Falta de saque! No hay segundo saque, punto directo al rival
+        awardPoint(b.lastHitTeam === 0 ? 1 : 0, '¡FALTA DE SAQUE (FUERA DEL CUADRO CRUZADO)!', true);
+        return;
+      }
+    }
 
-    if (b.bouncesOnSide >= 2) {
-      awardPoint(currentSide === 0 ? 1 : 0, '¡DOBLE BOTE!');
+    b.bouncesInOpponentSide++;
+
+    if (b.bouncesInOpponentSide >= 2) {
+      awardPoint(b.lastHitTeam, '¡DOBLE BOTE!');
       return;
     }
   }
 
-  // Rebotes en Cristales
+  // Rebotes en Cristales y Malla Metálica
   const hitLeft = b.x <= COURT.x + 10;
   const hitRight = b.x >= COURT.x + COURT.w - 10;
   const hitTop = b.y <= COURT.y + 10;
   const hitBottom = b.y >= COURT.y + COURT.h - 10;
 
   if (hitLeft || hitRight || hitTop || hitBottom) {
-    if (!b.bouncedAfterNet || b.bouncesOnSide === 0) {
-      awardPoint(b.lastHitTeam === 0 ? 1 : 0, '¡OUT DIRECTO AL CRISTAL!');
+    // 1. Si choca contra la pared rival sin haber dado su primer bote en el suelo -> OUT directo!
+    if (b.bouncesInOpponentSide === 0) {
+      const msg = b.isServeShot ? '¡FALTA DE SAQUE (DIRECTO A PARED)!' : '¡OUT DIRECTO AL CRISTAL!';
+      awardPoint(b.lastHitTeam === 0 ? 1 : 0, msg, true);
       return;
     }
 
-    if (hitLeft) { b.x = COURT.x + 11; b.vx = Math.abs(b.vx) * 0.74; }
-    if (hitRight) { b.x = COURT.x + COURT.w - 11; b.vx = -Math.abs(b.vx) * 0.74; }
-    if (hitTop) { b.y = COURT.y + 11; b.vy = Math.abs(b.vy) * 0.74; }
-    if (hitBottom) { b.y = COURT.y + COURT.h - 11; b.vy = -Math.abs(b.vy) * 0.74; }
-    if (b.vz < 2.0) b.vz = 2.4;
+    // 2. Regla oficial de Saque: tras botar en el cuadro, si da en la malla metálica (no en el cristal de 150px) -> ¡FALTA DE SAQUE!
+    const isSideMesh = (hitTop || hitBottom) &&
+      (b.x > COURT.x + COURT.glassLength) &&
+      (b.x < COURT.x + COURT.w - COURT.glassLength);
+
+    if (b.isServeShot && isSideMesh) {
+      awardPoint(b.lastHitTeam === 0 ? 1 : 0, '¡FALTA DE SAQUE (DIO EN LA MALLA METÁLICA)!', true);
+      return;
+    }
+
+    emitSound('glass');
+
+    // Si es un REMATE que da contra el cristal de fondo, sale despedido con fuerza de vuelta hacia la red
+    const wallRestitution = b.shotType === '¡REMATE!' ? 0.92 : 0.74;
+    if (hitLeft) { b.x = COURT.x + 11; b.vx = Math.abs(b.vx) * wallRestitution; }
+    if (hitRight) { b.x = COURT.x + COURT.w - 11; b.vx = -Math.abs(b.vx) * wallRestitution; }
+    if (hitTop) { b.y = COURT.y + 11; b.vy = Math.abs(b.vy) * wallRestitution; }
+    if (hitBottom) { b.y = COURT.y + COURT.h - 11; b.vy = -Math.abs(b.vy) * wallRestitution; }
+
+    if (b.shotType === '¡REMATE!' && (hitLeft || hitRight)) {
+      b.vz = Math.max(b.vz, 3.6); // Impulso alto tras rebotar en el cristal de fondo para regresar al campo
+    } else if (b.vz < 2.0) {
+      b.vz = 2.4;
+    }
+    // Una vez que rebotó válidamente en el cristal tras el saque, continúa el punto normal
+    b.isServeShot = false;
   }
 }
 
@@ -791,7 +1045,17 @@ function drawCourt() {
   ctx.fillStyle = '#1565c0';
   ctx.fillRect(COURT.x, COURT.y, COURT.w, COURT.h);
 
-  // Líneas blancas
+  // Iluminar el cuadro de saque obligatorio cuando estamos sacando
+  if (state.phase === 'SERVE' || (state.phase === 'PLAY' && state.ball.isServeShot && state.ball.bouncesInOpponentSide === 0)) {
+    const box = state.serveTargetBox;
+    ctx.fillStyle = 'rgba(204, 255, 0, 0.22)';
+    ctx.fillRect(box.minX, box.minY, box.maxX - box.minX, box.maxY - box.minY);
+    ctx.strokeStyle = '#ccff00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(box.minX + 2, box.minY + 2, box.maxX - box.minX - 4, box.maxY - box.minY - 4);
+  }
+
+  // Líneas blancas reglamentarias
   ctx.strokeStyle = 'rgba(255,255,255,0.88)';
   ctx.lineWidth = 3;
   ctx.strokeRect(COURT.x, COURT.y, COURT.w, COURT.h);
@@ -801,25 +1065,37 @@ function drawCourt() {
   ctx.lineTo(COURT.serviceLeft, COURT.y + COURT.h);
   ctx.moveTo(COURT.serviceRight, COURT.y);
   ctx.lineTo(COURT.serviceRight, COURT.y + COURT.h);
-  ctx.moveTo(COURT.serviceLeft, COURT.y + COURT.h / 2);
-  ctx.lineTo(COURT.serviceRight, COURT.y + COURT.h / 2);
+  ctx.moveTo(COURT.serviceLeft, COURT.midY);
+  ctx.lineTo(COURT.serviceRight, COURT.midY);
   ctx.stroke();
 
-  // Cristales
+  // Malla metálica lateral (gris acerado)
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(COURT.x + COURT.glassLength, COURT.y);
+  ctx.lineTo(COURT.x + COURT.w - COURT.glassLength, COURT.y);
+  ctx.moveTo(COURT.x + COURT.glassLength, COURT.y + COURT.h);
+  ctx.lineTo(COURT.x + COURT.w - COURT.glassLength, COURT.y + COURT.h);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Cristales (Celeste grueso en fondos y primeros 150px laterales)
   ctx.strokeStyle = '#67e8f9';
   ctx.lineWidth = 7;
   ctx.beginPath();
-  ctx.moveTo(COURT.x + 150, COURT.y);
+  ctx.moveTo(COURT.x + COURT.glassLength, COURT.y);
   ctx.lineTo(COURT.x, COURT.y);
   ctx.lineTo(COURT.x, COURT.y + COURT.h);
-  ctx.lineTo(COURT.x + 150, COURT.y + COURT.h);
+  ctx.lineTo(COURT.x + COURT.glassLength, COURT.y + COURT.h);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(COURT.x + COURT.w - 150, COURT.y);
+  ctx.moveTo(COURT.x + COURT.w - COURT.glassLength, COURT.y);
   ctx.lineTo(COURT.x + COURT.w, COURT.y);
   ctx.lineTo(COURT.x + COURT.w, COURT.y + COURT.h);
-  ctx.lineTo(COURT.x + COURT.w - 150, COURT.y + COURT.h);
+  ctx.lineTo(COURT.x + COURT.w - COURT.glassLength, COURT.y + COURT.h);
   ctx.stroke();
 
   // Red central
@@ -842,12 +1118,21 @@ function drawAimGuide() {
   const ratio = isHost ? (me.chargeFrames / MAX_CHARGE_FRAMES) : (localChargeFrames / MAX_CHARGE_FRAMES);
   const isCharging = isHost ? me.charging : localInput.charging;
   const isLob = isHost ? me.lobMode : localInput.lobMode;
+  const isMyServe = (state.phase === 'SERVE' && state.serverSlot === mySlot);
 
-  const { tx, ty } = getClampedTarget(me.team, localInput.aimX, localInput.aimY, ratio, isLob);
+  const { tx, ty } = getClampedTarget(me.team, localInput.aimX, localInput.aimY, ratio, me.powerStat, isLob, isMyServe);
 
-  // Línea de apuntado cuando estás cargando la pala
+  // Avisar en rojo si en el saque estás apuntando fuera del cuadro cruzado
+  let aimValid = true;
+  if (isMyServe) {
+    const box = state.serveTargetBox;
+    aimValid = (tx >= box.minX && tx <= box.maxX && ty >= box.minY && ty <= box.maxY);
+  }
+
+  const guideColor = !aimValid ? '#ef4444' : (isLob ? '#38bdf8' : '#ccff00');
+
   if (isCharging) {
-    ctx.strokeStyle = isLob ? 'rgba(56, 189, 248, 0.55)' : 'rgba(204, 255, 0, 0.55)';
+    ctx.strokeStyle = guideColor;
     ctx.lineWidth = 2;
     ctx.setLineDash([6, 6]);
     ctx.beginPath();
@@ -857,8 +1142,7 @@ function drawAimGuide() {
     ctx.setLineDash([]);
   }
 
-  // Mira en la cancha rival donde caerá la pelota
-  ctx.strokeStyle = isLob ? '#38bdf8' : '#ccff00';
+  ctx.strokeStyle = guideColor;
   ctx.lineWidth = isCharging ? 2.5 : 1.5;
   ctx.beginPath();
   ctx.arc(tx, ty, isCharging ? 10 + ratio * 6 : 8, 0, Math.PI * 2);
@@ -878,13 +1162,22 @@ function drawEntities() {
     const paddleX = p.x + dir * 17;
     const paddleY = p.y + 6;
 
-    // Sombra del jugador
+    // Estela de Sprint cuando está corriendo con ESPACIO
+    if (p.sprintActiveTimer > 0) {
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 22, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Sombra
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath();
     ctx.ellipse(p.x, p.y + 15, 16, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Círculo de alcance exacto de la pala cuando carga o hace swing
+    // Alcance de pala
     if (p.charging || p.swingTimer > 0) {
       ctx.strokeStyle = p.swingTimer > 0 ? 'rgba(250, 204, 21, 0.75)' : 'rgba(255, 255, 255, 0.22)';
       ctx.lineWidth = p.swingTimer > 0 ? 3 : 1.5;
@@ -893,16 +1186,17 @@ function drawEntities() {
       ctx.stroke();
     }
 
-    // Cuerpo del jugador
+    // Cuerpo (ligeramente más grande si es arquetipo de Fuerza)
+    const bodyRadius = 14 + p.powerStat * 3.5;
     ctx.fillStyle = p.team === 0 ? '#38bdf8' : '#f87171';
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, bodyRadius, 0, Math.PI * 2);
     ctx.fill();
     ctx.lineWidth = (idx === mySlot) ? 3.5 : 2;
     ctx.strokeStyle = (idx === mySlot) ? '#ccff00' : '#ffffff';
     ctx.stroke();
 
-    // Pala animada (se echa hacia atrás al cargar y hacia adelante al soltar el golpe)
+    // Pala animada
     let swingOffset = 0;
     if (p.charging) swingOffset = -dir * (6 + (p.chargeFrames / MAX_CHARGE_FRAMES) * 8);
     if (p.swingTimer > 0) swingOffset = dir * 12;
@@ -915,36 +1209,42 @@ function drawEntities() {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Barra de carga de 2 segundos sobre el jugador
+    // Barra de carga del golpe (arriba)
     if (p.charging) {
       const ratio = Math.min(1, p.chargeFrames / MAX_CHARGE_FRAMES);
-      const barW = 44;
-      const barH = 7;
-      const bx = p.x - barW / 2;
-      const by = p.y - 38;
+      const barW = 44, barH = 7;
+      const bx = p.x - barW / 2, by = p.y - 39;
 
       ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
       ctx.fillRect(bx, by, barW, barH);
-
-      // Color progresivo: verde -> amarillo -> naranja/rojo al llegar a 2s
       ctx.fillStyle = p.lobMode ? '#38bdf8' : (ratio > 0.85 ? '#f97316' : (ratio > 0.45 ? '#facc15' : '#ccff00'));
       ctx.fillRect(bx + 1, by + 1, (barW - 2) * ratio, barH - 2);
-
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 1;
       ctx.strokeRect(bx, by, barW, barH);
     }
 
+    // Barra de Sprint (abajo del jugador: muestra recarga de 20s)
+    const sprintW = 36, sprintH = 5;
+    const sx = p.x - sprintW / 2, sy = p.y + 22;
+    const readyRatio = p.sprintActiveTimer > 0
+      ? (p.sprintActiveTimer / SPRINT_DURATION)
+      : (1 - p.sprintCooldown / SPRINT_COOLDOWN);
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+    ctx.fillRect(sx, sy, sprintW, sprintH);
+    ctx.fillStyle = p.sprintActiveTimer > 0 ? '#ccff00' : (p.sprintCooldown === 0 ? '#38bdf8' : '#64748b');
+    ctx.fillRect(sx, sy, sprintW * readyRatio, sprintH);
+
     // Nombre
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 11px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(p.name, p.x, p.y - 22);
+    ctx.fillText(p.name, p.x, p.y - 23);
   });
 
   const b = state.ball;
 
-  // Estela luminosa
   b.trail.forEach((t, i) => {
     const alpha = (i + 1) / b.trail.length * 0.45;
     ctx.fillStyle = `rgba(204, 255, 0, ${alpha})`;
@@ -953,7 +1253,7 @@ function drawEntities() {
     ctx.fill();
   });
 
-  // Sombra exacta en el suelo (punto de impacto)
+  // Sombra en el césped
   ctx.fillStyle = 'rgba(0,0,0,0.45)';
   ctx.beginPath();
   ctx.ellipse(b.x, b.y, 9, 5.5, 0, 0, Math.PI * 2);
@@ -976,7 +1276,6 @@ function drawEntities() {
     ctx.setLineDash([]);
   }
 
-  // Pelota
   const ballRadius = 8 + b.z * 0.08;
   ctx.fillStyle = b.shotType === '¡REMATE!' ? '#facc15' : '#ccff00';
   ctx.beginPath();
@@ -986,25 +1285,25 @@ function drawEntities() {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  if (b.z > 30 && state.phase === 'PLAY') {
+  if (b.z > 28 && state.phase === 'PLAY') {
     ctx.fillStyle = '#fef08a';
     ctx.font = 'bold 11px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(b.shotType === 'GLOBO' ? '☁️ GLOBO' : '⚡ BOLA ALTA', b.x, visualY - ballRadius - 7);
   }
 
-  // Banner superior
+  // Banner informativo
   if (state.bannerTimer > 0) {
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-    ctx.fillRect(canvas.width / 2 - 240, 50, 480, 42);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    ctx.fillRect(canvas.width / 2 - 260, 48, 520, 40);
     ctx.strokeStyle = '#ccff00';
     ctx.lineWidth = 2;
-    ctx.strokeRect(canvas.width / 2 - 240, 50, 480, 42);
+    ctx.strokeRect(canvas.width / 2 - 260, 48, 520, 40);
 
     ctx.fillStyle = '#ccff00';
-    ctx.font = 'bold 16px sans-serif';
+    ctx.font = 'bold 15px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(state.bannerText, canvas.width / 2, 76);
+    ctx.fillText(state.bannerText, canvas.width / 2, 73);
   }
 }
 
