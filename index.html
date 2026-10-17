@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Padel Club 2v2 Online</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    :root {
+      --court-blue: #1565c0;
+      --court-outer: #0d47a1;
+      --glass: #80deea;
+      --accent: #ccff00;
+      --bg: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: var(--bg);
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      user-select: none;
+    }
+    header {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      background: #1e293b;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+    .brand { font-size: 1.3rem; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; }
+    .scoreboard {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+    .team-badge {
+      padding: 6px 14px;
+      border-radius: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .team-blue { background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; color: #38bdf8; }
+    .team-red { background: rgba(248, 113, 113, 0.2); border: 2px solid #f87171; color: #f87171; }
+    .pts { font-size: 1.4rem; color: #fff; min-width: 36px; text-align: center; }
+    .games { font-size: 0.85rem; opacity: 0.85; }
+
+    .panel {
+      width: 100%;
+      max-width: 960px;
+      background: #1e293b;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #334155;
+    }
+    .inputs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    input {
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    button.secondary { background: #38bdf8; color: #0f172a; }
+    .room-badge {
+      background: #0f172a;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px dashed var(--accent);
+      font-family: monospace;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+
+    #canvas-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border: 4px solid #334155;
+    }
+    canvas { display: block; background: var(--court-outer); }
+
+    .controls-footer {
+      margin-top: 12px;
+      display: flex;
+      gap: 24px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .key {
+      background: #334155;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">🎾 PADEL 2v2 ONLINE</div>
+    <div class="scoreboard">
+      <div class="team-badge team-blue">
+        <span>AZUL</span>
+        <span class="games" id="games-blue">(0G)</span>
+        <span class="pts" id="score-blue">0</span>
+      </div>
+      <span>VS</span>
+      <div class="team-badge team-red">
+        <span class="pts" id="score-red">0</span>
+        <span class="games" id="games-red">(0G)</span>
+        <span>ROJO</span>
+      </div>
+    </div>
+    <div class="room-badge" id="status-text">Modo Práctica (Con IA)</div>
+  </header>
+
+  <div class="panel">
+    <div class="inputs">
+      <input type="text" id="player-name" placeholder="Tu Nombre" maxlength="10" value="Jugador" style="width: 120px;">
+      <button onclick="createRoom()">Crear Sala (Host)</button>
+      <input type="text" id="room-code-input" placeholder="Código (ej: A7X9)" maxlength="6" style="width: 140px; text-transform: uppercase;">
+      <button class="secondary" onclick="joinRoom()">Unirse a Sala</button>
+    </div>
+    <div class="inputs">
+      <button class="secondary" onclick="resetMatch()">Reiniciar Partido</button>
+    </div>
+  </div>
+
+  <div id="canvas-wrapper">
+    <canvas id="game" width="920" height="520"></canvas>
+  </div>
+
+  <div class="controls-footer">
+    <div><span class="key">W A S D</span> o <span class="key">Flechas</span> Moverse</div>
+    <div><span class="key">ESPACIO</span> o <span class="key">J</span> Golpe Plano / Remate (en bola alta)</div>
+    <div><span class="key">SHIFT</span> o <span class="key">K</span> Globo (pasa por arriba de la red)</div>
+  </div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// Dimensiones de la pista de pádel (dentro del canvas 920x520)
+const COURT = {
+  x: 60, y: 40,
+  w: 800, h: 440,
+  netX: 460,
+  serviceLeft: 200,
+  serviceRight: 720
+};
+
+const POINTS_LABELS = ['0', '15', '30', '40', 'ORO'];
+
+// Red / PeerJS
+let peer = null;
+let isHost = true; // Por defecto en modo local/host con bots hasta unirse a otra sala
+let mySlot = 0; // 0, 1 (Azul) | 2, 3 (Rojo)
+let connections = {}; // slot -> DataConnection (solo usado por Host)
+let hostConn = null; // conexión del cliente hacia el Host
+
+// Inputs locales
+const keys = { up: false, down: false, left: false, right: false, flat: false, lob: false };
+
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'w' || e.key === 'ArrowUp') keys.up = true;
+  if (k === 's' || e.key === 'ArrowDown') keys.down = true;
+  if (k === 'a' || e.key === 'ArrowLeft') keys.left = true;
+  if (k === 'd' || e.key === 'ArrowRight') keys.right = true;
+  if (e.code === 'Space' || k === 'j') { keys.flat = true; e.preventDefault(); }
+  if (e.key === 'Shift' || k === 'k') { keys.lob = true; e.preventDefault(); }
+});
+
+window.addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'w' || e.key === 'ArrowUp') keys.up = false;
+  if (k === 's' || e.key === 'ArrowDown') keys.down = false;
+  if (k === 'a' || e.key === 'ArrowLeft') keys.left = false;
+  if (k === 'd' || e.key === 'ArrowRight') keys.right = false;
+  if (e.code === 'Space' || k === 'j') keys.flat = false;
+  if (e.key === 'Shift' || k === 'k') keys.lob = false;
+});
+
+// Estado del juego (Autoritativo en el Host)
+const state = {
+  players: [
+    { x: 180, y: 150, vx: 0, vy: 0, team: 0, name: 'P1 (Tú)', isBot: false, cooldown: 0 },
+    { x: 180, y: 370, vx: 0, vy: 0, team: 0, name: 'Bot Revés', isBot: true, cooldown: 0 },
+    { x: 740, y: 150, vx: 0, vy: 0, team: 1, name: 'Bot Drive', isBot: true, cooldown: 0 },
+    { x: 740, y: 370, vx: 0, vy: 0, team: 1, name: 'Bot Revés', isBot: true, cooldown: 0 }
+  ],
+  ball: {
+    x: 240, y: 200, z: 25,
+    vx: 6, vy: 2, vz: 4,
+    lastHitTeam: 0,
+    bouncesOnCurrentSide: 0,
+    bouncedSinceCross: false,
+    shotType: 'SAQUE'
+  },
+  score: [0, 0],
+  games: [0, 0],
+  bannerText: '¡SAQUE EN JUEGO!',
+  bannerTimer: 90,
+  freezeTimer: 40
+};
+
+const remoteInputs = [
+  { up: false, down: false, left: false, right: false, flat: false, lob: false },
+  { up: false, down: false, left: false, right: false, flat: false, lob: false },
+  { up: false, down: false, left: false, right: false, flat: false, lob: false },
+  { up: false, down: false, left: false, right: false, flat: false, lob: false }
+];
+
+// ================= CONEXIÓN P2P (PeerJS) =================
+function randomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = '';
+  for (let i = 0; i < 4; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
+function createRoom() {
+  const code = randomCode();
+  const peerId = 'padel2v2-cl-' + code;
+  if (peer) peer.destroy();
+
+  isHost = true;
+  mySlot = 0;
+  state.players[0].name = document.getElementById('player-name').value || 'Host';
+  state.players[0].isBot = false;
+
+  peer = new Peer(peerId);
+  document.getElementById('status-text').innerText = 'Creando sala...';
+
+  peer.on('open', () => {
+    document.getElementById('status-text').innerText = 'CÓDIGO SALA: ' + code;
+    showBanner('SALA ' + code + ' CREADA');
+  });
+
+  peer.on('connection', conn => {
+    // Buscar primer slot con Bot disponible
+    let assignedSlot = -1;
+    for (let i = 1; i < 4; i++) {
+      if (state.players[i].isBot) { assignedSlot = i; break; }
+    }
+    if (assignedSlot === -1) {
+      conn.close();
+      return;
+    }
+
+    connections[assignedSlot] = conn;
+    state.players[assignedSlot].isBot = false;
+    state.players[assignedSlot].name = 'Jugador ' + (assignedSlot + 1);
+
+    conn.on('open', () => {
+      conn.send({ type: 'welcome', slot: assignedSlot });
+      showBanner('¡SE UNIÓ JUGADOR ' + (assignedSlot + 1) + '!');
+    });
+
+    conn.on('data', data => {
+      if (data.type === 'input') {
+        remoteInputs[assignedSlot] = data.keys;
+        if (data.name) state.players[assignedSlot].name = data.name.slice(0, 10);
+      }
+    });
+
+    conn.on('close', () => {
+      state.players[assignedSlot].isBot = true;
+      state.players[assignedSlot].name = 'Bot ' + (assignedSlot + 1);
+      delete connections[assignedSlot];
+      showBanner('JUGADOR ' + (assignedSlot + 1) + ' SALIÓ');
+    });
+  });
+}
+
+function joinRoom() {
+  const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+  if (!code) return alert('Ingresa el código de 4 letras de la sala.');
+  if (peer) peer.destroy();
+
+  isHost = false;
+  peer = new Peer();
+  document.getElementById('status-text').innerText = 'Conectando a ' + code + '...';
+
+  peer.on('open', () => {
+    hostConn = peer.connect('padel2v2-cl-' + code);
+    hostConn.on('open', () => {
+      document.getElementById('status-text').innerText = 'Conectado a ' + code;
+    });
+    hostConn.on('data', data => {
+      if (data.type === 'welcome') {
+        mySlot = data.slot;
+        document.getElementById('status-text').innerText = 'Sala ' + code + ' | Eres J' + (mySlot + 1);
+      } else if (data.type === 'state') {
+        Object.assign(state, data.state);
+        updateScoreUI();
+      }
+    });
+    hostConn.on('close', () => {
+      document.getElementById('status-text').innerText = 'Desconectado del Host';
+      isHost = true;
+    });
+  });
+}
+
+// Enviar inputs al Host si somos cliente
+setInterval(() => {
+  if (!isHost && hostConn && hostConn.open) {
+    const myName = document.getElementById('player-name').value || ('J' + (mySlot + 1));
+    hostConn.send({ type: 'input', keys, name: myName });
+  }
+}, 25);
+
+// ================= LÓGICA DE PÁDEL (HOST) =================
+function showBanner(text, duration = 85) {
+  state.bannerText = text;
+  state.bannerTimer = duration;
+}
+
+function resetRally(servingTeam) {
+  state.freezeTimer = 55;
+  // Posiciones base 2v2
+  state.players[0].x = 180; state.players[0].y = 150;
+  state.players[1].x = 180; state.players[1].y = 370;
+  state.players[2].x = 740; state.players[2].y = 150;
+  state.players[3].x = 740; state.players[3].y = 370;
+
+  const b = state.ball;
+  b.z = 22;
+  b.vz = 4.2;
+  b.bouncesOnCurrentSide = 0;
+  b.bouncedSinceCross = false;
+  b.shotType = 'SAQUE';
+
+  if (servingTeam === 0) {
+    b.x = 220; b.y = 200;
+    b.vx = 6.2; b.vy = (Math.random() - 0.5) * 3.5;
+    b.lastHitTeam = 0;
+  } else {
+    b.x = 700; b.y = 320;
+    b.vx = -6.2; b.vy = (Math.random() - 0.5) * 3.5;
+    b.lastHitTeam = 1;
+  }
+}
+
+function awardPoint(winningTeam, reason) {
+  state.score[winningTeam]++;
+  const s0 = state.score[0];
+  const s1 = state.score[1];
+
+  // Punto de Oro (en 40-40, el índice 3-3 es Punto de Oro; quien llega a 4 gana el Game)
+  if (state.score[winningTeam] >= 4) {
+    state.games[winningTeam]++;
+    state.score = [0, 0];
+    showBanner(`¡GAME EQUIPO ${winningTeam === 0 ? 'AZUL' : 'ROJO'}! (${reason})`, 110);
+  } else if (s0 === 3 && s1 === 3) {
+    showBanner(`¡40-40 PUNTO DE ORO! (${reason})`, 110);
+  } else {
+    showBanner(`${reason} • ${POINTS_LABELS[s0]} - ${POINTS_LABELS[s1]}`, 95);
+  }
+  updateScoreUI();
+  resetRally(winningTeam);
+}
+
+function resetMatch() {
+  if (!isHost) return;
+  state.score = [0, 0];
+  state.games = [0, 0];
+  updateScoreUI();
+  showBanner('¡PARTIDO REINICIADO!');
+  resetRally(0);
+}
+
+function updateScoreUI() {
+  document.getElementById('score-blue').innerText = POINTS_LABELS[state.score[0]] || '0';
+  document.getElementById('score-red').innerText = POINTS_LABELS[state.score[1]] || '0';
+  document.getElementById('games-blue').innerText = `(${state.games[0]}G)`;
+  document.getElementById('games-red').innerText = `(${state.games[1]}G)`;
+}
+
+function computeBotInput(p, idx) {
+  const b = state.ball;
+  const input = { up: false, down: false, left: false, right: false, flat: false, lob: false };
+  const isTopHalf = (idx % 2 === 0);
+  const homeX = p.team === 0 ? 210 : 710;
+  const netPos = p.team === 0 ? 350 : 570;
+  const homeY = isTopHalf ? 155 : 365;
+
+  const ballOnMySide = (p.team === 0 && b.x < COURT.netX) || (p.team === 1 && b.x > COURT.netX);
+  const ballInMyHalfY = isTopHalf ? (b.y < 275) : (b.y >= 245);
+
+  let targetX = ballOnMySide ? b.x : (b.shotType === 'GLOBO' ? homeX : netPos);
+  let targetY = (ballOnMySide && ballInMyHalfY) ? b.y : homeY;
+
+  if (p.x < targetX - 8) input.right = true;
+  if (p.x > targetX + 8) input.left = true;
+  if (p.y < targetY - 8) input.down = true;
+  if (p.y > targetY + 8) input.up = true;
+
+  const dist = Math.hypot(b.x - p.x, b.y - p.y);
+  if (dist < 42 && b.z < 65 && b.lastHitTeam !== p.team) {
+    // 25% de probabilidad de tirar globo si está defendiendo al fondo
+    if (Math.random() < 0.25 && ((p.team === 0 && p.x < 220) || (p.team === 1 && p.x > 700))) {
+      input.lob = true;
+    } else {
+      input.flat = true;
+    }
+  }
+  return input;
+}
+
+function updateHostPhysics() {
+  state.players[0].name = document.getElementById('player-name').value || 'Host';
+  remoteInputs[0] = keys;
+
+  if (state.bannerTimer > 0) state.bannerTimer--;
+  if (state.freezeTimer > 0) {
+    state.freezeTimer--;
+    return;
+  }
+
+  const speed = 4.3;
+  const b = state.ball;
+
+  // 1. Mover jugadores y procesar golpes
+  state.players.forEach((p, idx) => {
+    if (p.cooldown > 0) p.cooldown--;
+    const inp = p.isBot ? computeBotInput(p, idx) : remoteInputs[idx];
+
+    p.vx = (inp.right ? speed : 0) - (inp.left ? speed : 0);
+    p.vy = (inp.down ? speed : 0) - (inp.up ? speed : 0);
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Límites de su lado de la cancha
+    const minX = p.team === 0 ? COURT.x + 18 : COURT.netX + 20;
+    const maxX = p.team === 0 ? COURT.netX - 20 : COURT.x + COURT.w - 18;
+    p.x = Math.max(minX, Math.min(maxX, p.x));
+    p.y = Math.max(COURT.y + 18, Math.min(COURT.y + COURT.h - 18, p.y));
+
+    // Intentar golpear la pelota
+    const dist = Math.hypot(b.x - p.x, b.y - p.y);
+    if ((inp.flat || inp.lob) && p.cooldown === 0 && dist < 44 && b.z <= 75) {
+      p.cooldown = 18;
+      const dirX = p.team === 0 ? 1 : -1;
+      const aimY = ((b.y - p.y) * 0.14) + (p.vy * 0.65);
+
+      if (inp.lob) {
+        // GLOBO: lento pero muy alto, pasa sobre los voleadores
+        b.vx = dirX * 6.0;
+        b.vy = Math.max(-3.5, Math.min(3.5, aimY));
+        b.vz = 9.2;
+        b.shotType = 'GLOBO';
+      } else if (b.z > 32) {
+        // REMATE / SMASH: pelota tomada alta
+        b.vx = dirX * 11.2;
+        b.vy = Math.max(-5.5, Math.min(5.5, aimY * 1.3));
+        b.vz = 3.2;
+        b.shotType = '¡REMATE!';
+        showBanner('💥 ¡REMATE POR 3!', 45);
+      } else {
+        // GOLPE PLANO / BANDEJA
+        b.vx = dirX * 8.4;
+        b.vy = Math.max(-4.5, Math.min(4.5, aimY));
+        b.vz = 4.6;
+        b.shotType = 'DRIVE';
+      }
+
+      b.lastHitTeam = p.team;
+      b.bouncesOnCurrentSide = 0;
+      b.bouncedSinceCross = false;
+    }
+  });
+
+  // 2. Física 2.5D de la pelota
+  const prevX = b.x;
+  b.x += b.vx;
+  b.y += b.vy;
+  b.z += b.vz;
+  b.vz -= 0.26; // Gravedad
+
+  // Cruce de red
+  const crossedToRight = (prevX <= COURT.netX && b.x > COURT.netX);
+  const crossedToLeft = (prevX >= COURT.netX && b.x < COURT.netX);
+  if (crossedToRight || crossedToLeft) {
+    if (b.z < 14) {
+      // Chocó en la red! Punto para el equipo contrario al que golpeó
+      const winner = b.lastHitTeam === 0 ? 1 : 0;
+      awardPoint(winner, '¡RED!');
+      return;
+    }
+    b.bouncesOnCurrentSide = 0;
+    b.bouncedSinceCross = false;
+  }
+
+  // Bote en el suelo (césped azul)
+  if (b.z <= 0) {
+    b.z = 0;
+    b.vz = Math.abs(b.vz) * 0.72;
+    b.vx *= 0.92;
+    b.vy *= 0.92;
+
+    const currentSide = b.x < COURT.netX ? 0 : 1;
+    // Si bota en tu propio lado sin haber cruzado la red
+    if (currentSide === b.lastHitTeam && !b.bouncedSinceCross) {
+      awardPoint(currentSide === 0 ? 1 : 0, 'BOTE EN PROPIO CAMPO');
+      return;
+    }
+
+    b.bouncedSinceCross = true;
+    b.bouncesOnCurrentSide++;
+
+    // Regla del Pádel: al segundo bote, termina el punto
+    if (b.bouncesOnCurrentSide >= 2) {
+      const winner = currentSide === 0 ? 1 : 0;
+      awardPoint(winner, '¡DOBLE BOTE!');
+      return;
+    }
+  }
+
+  // 3. Rebotes en Cristales / Paredes (Regla oficial de Pádel)
+  const hitLeftWall = b.x <= COURT.x + 8;
+  const hitRightWall = b.x >= COURT.x + COURT.w - 8;
+  const hitTopWall = b.y <= COURT.y + 8;
+  const hitBottomWall = b.y >= COURT.y + COURT.h - 8;
+
+  if (hitLeftWall || hitRightWall || hitTopWall || hitBottomWall) {
+    // Si choca con el cristal del rival SIN haber dado un bote antes en el suelo -> OUT directo!
+    if (!b.bouncedSinceCross) {
+      const winner = b.lastHitTeam === 0 ? 1 : 0;
+      awardPoint(winner, '¡OUT DIRECTO AL CRISTAL!');
+      return;
+    }
+
+    // Si ya botó en el suelo, el cristal devuelve la pelota en juego!
+    if (hitLeftWall) { b.x = COURT.x + 9; b.vx = Math.abs(b.vx) * 0.78; }
+    if (hitRightWall) { b.x = COURT.x + COURT.w - 9; b.vx = -Math.abs(b.vx) * 0.78; }
+    if (hitTopWall) { b.y = COURT.y + 9; b.vy = Math.abs(b.vy) * 0.78; }
+    if (hitBottomWall) { b.y = COURT.y + COURT.h - 9; b.vy = -Math.abs(b.vy) * 0.78; }
+  }
+
+  // Broadcast del estado a los clientes conectados
+  Object.values(connections).forEach(conn => {
+    if (conn && conn.open) {
+      conn.send({ type: 'state', state });
+    }
+  });
+}
+
+// ================= RENDERIZADO DE LA PISTA =================
+function drawCourt() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Césped interior azul World Padel Tour
+  ctx.fillStyle = '#1565c0';
+  ctx.fillRect(COURT.x, COURT.y, COURT.w, COURT.h);
+
+  // Líneas blancas reglamentarias de pádel
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(COURT.x, COURT.y, COURT.w, COURT.h);
+
+  // Líneas de saque
+  ctx.beginPath();
+  ctx.moveTo(COURT.serviceLeft, COURT.y);
+  ctx.lineTo(COURT.serviceLeft, COURT.y + COURT.h);
+  ctx.moveTo(COURT.serviceRight, COURT.y);
+  ctx.lineTo(COURT.serviceRight, COURT.y + COURT.h);
+  // Línea central de saque
+  ctx.moveTo(COURT.serviceLeft, COURT.y + COURT.h / 2);
+  ctx.lineTo(COURT.serviceRight, COURT.y + COURT.h / 2);
+  ctx.stroke();
+
+  // Cristales de fondo (celeste brillante) y malla metálica
+  ctx.strokeStyle = '#67e8f9';
+  ctx.lineWidth = 7;
+  // Cristal izquierdo (fondo + 160px de lateral)
+  ctx.beginPath();
+  ctx.moveTo(COURT.x + 150, COURT.y);
+  ctx.lineTo(COURT.x, COURT.y);
+  ctx.lineTo(COURT.x, COURT.y + COURT.h);
+  ctx.lineTo(COURT.x + 150, COURT.y + COURT.h);
+  ctx.stroke();
+
+  // Cristal derecho
+  ctx.beginPath();
+  ctx.moveTo(COURT.x + COURT.w - 150, COURT.y);
+  ctx.lineTo(COURT.x + COURT.w, COURT.y);
+  ctx.lineTo(COURT.x + COURT.w, COURT.y + COURT.h);
+  ctx.lineTo(COURT.x + COURT.w - 150, COURT.y + COURT.h);
+  ctx.stroke();
+
+  // Red central con sombra
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.fillRect(COURT.netX + 2, COURT.y, 6, COURT.h);
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([8, 5]);
+  ctx.beginPath();
+  ctx.moveTo(COURT.netX, COURT.y);
+  ctx.lineTo(COURT.netX, COURT.y + COURT.h);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawEntities() {
+  // Jugadores
+  state.players.forEach((p, idx) => {
+    // Sombra
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y + 14, 15, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cuerpo del jugador
+    ctx.fillStyle = p.team === 0 ? '#38bdf8' : '#f87171';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.lineWidth = (idx === mySlot) ? 3.5 : 2;
+    ctx.strokeStyle = (idx === mySlot) ? '#ccff00' : '#ffffff';
+    ctx.stroke();
+
+    // Pala de pádel (con agujeros)
+    const dir = p.team === 0 ? 1 : -1;
+    const paddleX = p.x + dir * (p.cooldown > 10 ? 22 : 15);
+    const paddleY = p.y + 8;
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.ellipse(paddleX, paddleY, 9, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ccff00';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Etiqueta de nombre
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.name, p.x, p.y - 22);
+  });
+
+  // Pelota + Sombra según altura Z
+  const b = state.ball;
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  const shadowRadius = Math.max(4, 9 - b.z * 0.06);
+  ctx.ellipse(b.x, b.y, shadowRadius, shadowRadius * 0.65, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const ballRadius = 7 + b.z * 0.11;
+  const visualY = b.y - b.z * 0.85;
+  ctx.fillStyle = b.shotType === '¡REMATE!' ? '#facc15' : '#ccff00';
+  ctx.beginPath();
+  ctx.arc(b.x, visualY, ballRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // Indicador de Globo / Remate sobre la pelota
+  if (b.z > 32) {
+    ctx.fillStyle = '#fef08a';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.shotType === 'GLOBO' ? '☁️ GLOBO' : '⚡ ALTA (REMATA)', b.x, visualY - ballRadius - 6);
+  }
+
+  // Banner de avisos en pantalla
+  if (state.bannerTimer > 0) {
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+    ctx.fillRect(canvas.width / 2 - 210, canvas.height / 2 - 28, 420, 52);
+    ctx.strokeStyle = '#ccff00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(canvas.width / 2 - 210, canvas.height / 2 - 28, 420, 52);
+
+    ctx.fillStyle = '#ccff00';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(state.bannerText, canvas.width / 2, canvas.height / 2 + 5);
+  }
+}
+
+function gameLoop() {
+  if (isHost) updateHostPhysics();
+  drawCourt();
+  drawEntities();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>
